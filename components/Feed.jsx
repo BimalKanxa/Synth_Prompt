@@ -20,11 +20,23 @@ const PromptCardList = ({data, handleTagClick})=>{
 
 const Feed = () => {
 
+  //for search implemetation
+  const [searchTimeout, setSearchTimeout] = useState(null)
   const [searchText, setSearchText] = useState('')
+  const [searchedResults, setSearchedResults] = useState([]);
+
   const [posts, setPosts] = useState([]);
 
   const handleSearchChange = (e) =>{
-            
+            clearTimeout(searchTimeout)
+            setSearchText(e.target.value)
+
+            //debounce method
+            setSearchTimeout(setTimeout(()=> {
+              const searchResult = filterPrompts(e.target.value)
+              setSearchedResults(searchResult)
+            }, 500)
+            );
   }
 
   useEffect(()=>{
@@ -36,6 +48,23 @@ const Feed = () => {
       }
       fetchPosts();
   },[])
+
+  const filterPrompts = (searchText)=>{
+    const regex = new RegExp(searchText, "i")//i means insensitivity to case
+    return posts.filter((item) =>
+      regex.test(item.creator.username) || 
+      regex.test(item.tag) || 
+      regex.test(item.prompt)
+    )
+  };
+
+
+  const handleTagClick = (tagName) =>{
+      setSearchText(tagName);
+
+      const searchResult = filterPrompts(tagName);
+      setSearchedResults(searchResult)
+  }
 
   return (
     <section className="feed">
@@ -49,12 +78,20 @@ const Feed = () => {
       />
       </form>
 
-      <PromptCardList  data={posts}
-          handleTagClick={()=>{
+      {/* all prompts */}
 
-          }}
-        />
-
+      {searchText? (searchedResults.length>0 ? (
+        <PromptCardList  data={searchedResults}
+                      handleTagClick={handleTagClick}
+      />
+      ): ( <p>No prompts found for "{searchText}" </p>)
+      ):
+      (
+        <PromptCardList data={posts}
+          handleTagClick={handleTagClick}
+          />
+          )
+      }
 
     </section>
   )
