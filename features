@@ -1,0 +1,3 @@
+1. implement search by (prompt, tag, username)
+2. implement click on tag //for 1 and 2nd feature code have to be implemented in feed component
+3. implement view other profiles //create a new folder in profile directory with dynamic [id] folder then create page.jsx file
